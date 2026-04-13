@@ -283,7 +283,7 @@ export default function Result() {
           )}
           
           <button onClick={handleRestart} className="btn-primary">
-            Start New Quiz
+            Back to Home
           </button>
         </div>
       </main>

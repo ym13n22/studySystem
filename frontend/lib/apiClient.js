@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Backend URLs
-const DEPLOYED_BACKEND_URL = 'https://studysystem-hbcw.onrender.com';
+const DEPLOYED_BACKEND_URL = 'https://studysystem-2.onrender.com';
 const LOCAL_BACKEND_URL = 'http://localhost:3001';
 const LOCALHOST_API_URL = 'http://localhost:3001/api';
 
