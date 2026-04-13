@@ -61,7 +61,7 @@ const apiClient = axios.create({
 // Request interceptor to add the correct base URL
 apiClient.interceptors.request.use(async (config) => {
   const backendUrl = await getWorkingBackendUrl();
-  config.baseURL = `${backendUrl}/api`;
+  config.baseURL = backendUrl;
   return config;
 });
 
@@ -82,7 +82,7 @@ apiClient.interceptors.response.use(
         setBackendUrl(LOCAL_BACKEND_URL);
         
         // Retry the request with localhost
-        originalRequest.baseURL = `${LOCAL_BACKEND_URL}/api`;
+        originalRequest.baseURL = LOCAL_BACKEND_URL;
         return apiClient(originalRequest);
       }
     }
