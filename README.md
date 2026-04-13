@@ -148,6 +148,14 @@ npm run dev
 
 前端将在 http://localhost:3000 运行
 
+#### 快速启动（Windows）
+
+双击项目根目录下的 `start.bat` 文件，将自动：
+- 检查并安装依赖
+- 启动后端服务器
+- 启动前端开发服务器
+- 打开浏览器访问 http://localhost:3000
+
 ### 可选：安装 Ollama（本地 AI 模型）
 
 ```bash
