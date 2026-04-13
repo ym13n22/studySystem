@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import axios from 'axios';
+import { apiClient } from '../lib/apiClient';
 import { useUser } from '../context/UserContext';
 
 export default function Quiz() {
@@ -54,7 +54,7 @@ export default function Quiz() {
       const originalContent = localStorage.getItem('originalContent');
       const topic = localStorage.getItem('quizTopic') || 'General';
       
-      const response = await axios.post('/api/evaluate', {
+      const response = await apiClient.post('/api/evaluate', {
         questions: quizData.questions,
         userAnswers,
         content: originalContent,
@@ -70,7 +70,7 @@ export default function Quiz() {
       // Save quiz result if user is logged in
       if (user) {
         try {
-          await axios.post('/api/quiz-results', {
+          await apiClient.post('/api/quiz-results', {
             topic,
             difficulty: quizData.difficulty || 1,
             score,

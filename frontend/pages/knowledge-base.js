@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import axios from 'axios';
+import { apiClient } from '../lib/apiClient';
 import { useUser } from '../context/UserContext';
 
 export default function KnowledgeBase() {
@@ -32,7 +32,7 @@ export default function KnowledgeBase() {
 
   const loadDocuments = async () => {
     try {
-      const response = await axios.get('/api/knowledge-base', {
+      const response = await apiClient.get('/api/knowledge-base', {
         headers: getAuthHeaders()
       });
       setDocuments(response.data.documents);
@@ -54,7 +54,7 @@ export default function KnowledgeBase() {
     setError('');
 
     try {
-      await axios.post('/api/knowledge-base', { title, content }, {
+      await apiClient.post('/api/knowledge-base', { title, content }, {
         headers: getAuthHeaders()
       });
       setTitle('');
@@ -70,7 +70,7 @@ export default function KnowledgeBase() {
 
   const handleDeleteDocument = async (id) => {
     try {
-      await axios.delete(`/api/knowledge-base/${id}`, {
+      await apiClient.delete(`/api/knowledge-base/${id}`, {
         headers: getAuthHeaders()
       });
       await loadDocuments();
@@ -86,7 +86,7 @@ export default function KnowledgeBase() {
     }
 
     try {
-      await axios.delete('/api/knowledge-base', {
+      await apiClient.delete('/api/knowledge-base', {
         headers: getAuthHeaders()
       });
       await loadDocuments();
@@ -119,7 +119,7 @@ export default function KnowledgeBase() {
     setError('');
 
     try {
-      await axios.put(`/api/knowledge-base/${editingDocId}`, {
+      await apiClient.put(`/api/knowledge-base/${editingDocId}`, {
         title: editTitle,
         content: editContent
       }, {
@@ -149,7 +149,7 @@ export default function KnowledgeBase() {
     setError('');
 
     try {
-      const response = await axios.post('/api/knowledge-base/search', {
+      const response = await apiClient.post('/api/knowledge-base/search', {
         query: searchQuery,
         topK: 3,
         minScore: 0.3

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import axios from 'axios';
+import { apiClient } from '../lib/apiClient';
 import { useUser } from '../context/UserContext';
 
 export default function Signup() {
@@ -25,7 +25,7 @@ export default function Signup() {
     setError('');
 
     try {
-      const response = await axios.post('/api/auth/signup', { email, password, name });
+      const response = await apiClient.post('/api/auth/signup', { email, password, name });
       
       // Update global user state using UserContext
       login(response.data.user, response.data.token);

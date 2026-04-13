@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import axios from 'axios';
+import { apiClient } from '../lib/apiClient';
 import { useUser } from '../context/UserContext';
 
 export default function Learning() {
@@ -69,7 +69,7 @@ export default function Learning() {
       if (user && content && topic && !learningPlan && !loading) {
         // First check if plan exists in database
         try {
-          const response = await axios.get('/api/learning-plan', {
+          const response = await apiClient.get('/api/learning-plan', {
             headers: getAuthHeaders(),
             params: { topic }
           });
@@ -90,7 +90,7 @@ export default function Learning() {
 
   const fetchUserProgress = async (topicName) => {
     try {
-      const response = await axios.get('/api/user-progress', {
+      const response = await apiClient.get('/api/user-progress', {
         headers: getAuthHeaders(),
         params: { topic: topicName }
       });
@@ -107,7 +107,7 @@ export default function Learning() {
     if (isUpdatingProgress) return; // Skip refetch during progress update
     
     try {
-      const response = await axios.get('/api/learning-plan', {
+      const response = await apiClient.get('/api/learning-plan', {
         headers: getAuthHeaders(),
         params: { topic: topicName }
       });
@@ -125,7 +125,7 @@ export default function Learning() {
     setError('');
     
     try {
-      const response = await axios.post('/api/generate-learning-plan', {
+      const response = await apiClient.post('/api/generate-learning-plan', {
         content,
         topic
       }, {
@@ -153,7 +153,7 @@ export default function Learning() {
     setCurrentStep(step);
 
     try {
-      const response = await axios.post('/api/generate-flashcards', {
+      const response = await apiClient.post('/api/generate-flashcards', {
         content,
         difficulty,
         topic,
@@ -179,7 +179,7 @@ export default function Learning() {
       const newCompletedSteps = Math.min(learningPlan.total_steps, stepIndex + 1);
       const newProgressPercentage = Math.round((newCompletedSteps / learningPlan.total_steps) * 100);
 
-      await axios.post('/api/learning-progress', {
+      await apiClient.post('/api/learning-progress', {
         topic,
         completed_steps: newCompletedSteps,
         progress_percentage: newProgressPercentage
@@ -256,7 +256,7 @@ export default function Learning() {
     setAnswer('');
 
     try {
-      const response = await axios.post('/api/qa', {
+      const response = await apiClient.post('/api/qa', {
         content,
         question,
         conversationHistory: conversation,

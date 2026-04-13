@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import axios from 'axios';
+import { apiClient } from '../lib/apiClient';
 
 export default function Result() {
   const [evaluation, setEvaluation] = useState(null);
@@ -66,7 +66,7 @@ export default function Result() {
         weight: 3
       }));
 
-      await axios.post('/api/user-weaknesses', {
+      await apiClient.post('/api/user-weaknesses', {
         topic,
         weaknesses: weaknessesData
       }, {
@@ -84,7 +84,7 @@ export default function Result() {
         weight: 2
       }));
 
-      await axios.post('/api/user-suggestions', {
+      await apiClient.post('/api/user-suggestions', {
         topic,
         suggestions: suggestionsData
       }, {

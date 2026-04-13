@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import axios from 'axios';
+import { apiClient } from '../lib/apiClient';
 import { useUser } from '../context/UserContext';
 
 export default function Home() {
@@ -43,7 +43,7 @@ export default function Home() {
     setError('');
 
     try {
-      const response = await axios.post('/api/generate-quiz', { content, useRAG, topic }, {
+      const response = await apiClient.post('/api/generate-quiz', { content, useRAG, topic }, {
         headers: getAuthHeaders()
       });
       
