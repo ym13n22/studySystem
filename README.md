@@ -92,18 +92,26 @@ cd StudySystem
 ```bash
 cd backend
 npm install
-cp .env.example .env
 ```
 
-编辑 `.env` 文件：
+创建 `.env` 文件：
 
 ```env
+# AI API Keys
 GEMINI_API_KEY=your_gemini_api_key
 GROQ_API_KEY=your_groq_api_key
+
+# Server Configuration
 PORT=3001
+
+# Supabase Configuration
 SUPABASE_URL=your_supabase_url
 SUPABASE_ANON_KEY=your_supabase_anon_key
 JWT_SECRET=your_jwt_secret
+
+# Ollama Configuration (optional)
+OLLAMA_URL=http://localhost:11434
+OLLAMA_MODEL=llama3.2
 ```
 
 #### 3. 配置前端
@@ -111,6 +119,13 @@ JWT_SECRET=your_jwt_secret
 ```bash
 cd frontend
 npm install
+```
+
+创建 `.env.local` 文件：
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
 ### 运行应用
