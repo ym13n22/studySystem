@@ -4,6 +4,8 @@
 ![Node.js](https://img.shields.io/badge/node.js-18+-green.svg)
 ![Next.js](https://img.shields.io/badge/next.js-14-black.svg)
 
+**生产环境链接**: https://ai-study-system.vercel.app/
+
 一个智能学习系统，基于 AI 生成个性化学习计划、测验和闪卡，帮助用户高效掌握知识。
 
 ## ✨ 核心功能
@@ -315,4 +317,3 @@ MIT License
 
 如有问题或建议，请通过以下方式联系：
 - 提交 GitHub Issue
-- 发送邮件至：[your-email]
