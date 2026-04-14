@@ -731,48 +731,8 @@ app.post('/api/evaluate', async (req, res) => {
     const correctAnswers = results.filter(r => r.correct).length;
     const score = Math.round((correctAnswers / questions.length) * 100);
 
-    // Generate explanations for each question
-    const explanations = await Promise.all(questions.map(async (question) => {
-      const languagePrompt = language === 'zh' ? '请用中文解释' : 'Explain in English';
-      const prompt = `${languagePrompt} 为什么这个答案是正确的。
-
-题目: ${question.question}
-正确答案: ${question.correctAnswer}
-选项: ${JSON.stringify(question.options)}
-
-请提供简短清晰的解释，说明为什么这个答案是正确的。只返回解释文本，不要其他内容。`;
-
-      try {
-        const explanation = await generateWithFallback(prompt);
-        return explanation;
-      } catch (error) {
-        console.error('Error generating explanation:', error);
-        return '解释生成失败';
-      }
-    }));
-
-    // Generate overall feedback using AI
-    const languageFeedback = language === 'zh' ? '请用中文提供反馈' : 'Provide feedback in English';
-    const prompt = `${languageFeedback} on the user's quiz performance based on the original learning content.
-
-Original Learning Content:
-${content}
-
-Questions:
-${JSON.stringify(questions, null, 2)}
-
-User Answers:
-${JSON.stringify(userAnswers, null, 2)}
-
-Score: ${score}/100
-
-Please provide detailed feedback on the user's performance and suggestions for improvement.
-Only return the feedback text, no additional text.`;
-
-    const feedback = await generateWithFallback(prompt);
-
-    // Generate strengths and weaknesses summary
-    const languageSummary = language === 'zh' ? '请用中文总结' : 'Summarize in English';
+    // Generate explanations, feedback, and summary in a single API call
+    const languagePrompt = language === 'zh' ? '请用中文' : 'Use English';
     
     // Get learning plan context for suggestions
     let learningPlanContext = '';
@@ -806,55 +766,82 @@ Only return the feedback text, no additional text.`;
         console.error('Error fetching learning plan for context:', error);
       }
     }
-    
-    const summaryPrompt = `${languageSummary} the user's performance by identifying their strengths and weaknesses. IMPORTANT: Use the same language as the learning plan steps shown above.
 
-Score: ${score}/100
-Correct Answers: ${correctAnswers}/${questions.length}
+    const combinedPrompt = `${languagePrompt} to analyze the quiz results. For each wrong answer, provide a brief explanation why the correct answer is right. Then provide overall feedback with strengths, weaknesses, and specific suggestions.
 
-Questions and Answers:
-${results.map((r, i) => {
-  const questionText = questions[i]?.question || '';
-  const userAnswer = questions[i]?.options?.[r.userAnswer] || r.userAnswer;
-  const correctAnswer = questions[i]?.options?.[r.correctAnswer] || r.correctAnswer;
-  return `Question ${i + 1}: ${r.correct ? 'Correct' : 'Wrong'}
-Question: ${questionText}
-Your answer: ${userAnswer}
-Correct answer: ${correctAnswer}`;
-}).join('\n\n')}
-${learningPlanContext}
+Score: ${score}/${questions.length} correct
 
-Please provide:
-1. Strengths (specific topics or question types they answered correctly)
-2. Weaknesses (specific topics or question types they got wrong)
-3. Specific, actionable suggestions (concrete steps to improve, not generic advice)
+Questions:
+${questions.map((q, i) => {
+  const userAns = userAnswers[q.id];
+  const isCorrect = userAns === q.correctAnswer;
+  return `Q${i+1}: ${q.question}
+Your answer: ${isCorrect ? '✓ Correct' : '✗ Wrong (' + userAns + ')'}
+Correct answer: ${q.correctAnswer}`;
+}).join('\n\n')}${learningPlanContext}
 
-IMPORTANT: Make suggestions specific and actionable. For example:
-- Instead of "study more", say "review the concept of X as shown in question Y"
-- Instead of "pay attention", say "focus on understanding the relationship between A and B"
-- Instead of "practice more", say "work on questions related to [specific topic]"
-- CRITICAL: Compare the user's weaknesses with the learning plan steps shown above
-- Identify which specific learning plan steps the user needs to strengthen based on their quiz performance
-- When suggesting to focus on a learning plan step, include the step number in EXACT format: "Step X: [step title]" where X is the step number
-- Example: "Based on your weakness in algebra, focus on Step 3: Basic Algebra Concepts to improve your understanding"
-- Make sure to include step references for ALL suggestions that relate to learning plan steps
+Provide:
+1. Brief explanations for wrong answers only (one sentence each)
+2. Strengths
+3. Weaknesses  
+4. Specific suggestions with step references like "Step X: [title]"
 
-Format the response as:
+Format:
+Explanations:
+- [explanation for wrong answer 1]
+- [explanation for wrong answer 2]
+
 Strengths:
-- [specific strength 1]
-- [specific strength 2]
+- [strength 1]
 
 Weaknesses:
-- [specific weakness 1]
-- [specific weakness 2]
+- [weakness 1]
 
 Suggestions:
-- [specific, actionable suggestion 1 - MUST include "Step X: [step title]" for relevant learning plan steps]
-- [specific, actionable suggestion 2 - MUST include "Step X: [step title]" for relevant learning plan steps]
+- [suggestion 1 with Step X: [title]]
+- [suggestion 2 with Step X: [title]]
 
-Only return the summary, no additional text.`;
+Be concise. Return only the formatted response.`;
 
-    const summary = await generateWithFallback(summaryPrompt);
+    let explanations = questions.map(() => '');
+    let feedback = '';
+    let summary = '';
+
+    try {
+      const response = await generateWithFallback(combinedPrompt);
+      
+      // Parse the response
+      const sections = response.split(/Explanations:|Strengths:|Weaknesses:|Suggestions:/i);
+      
+      if (sections.length >= 4) {
+        const explanationsText = sections[1] || '';
+        const strengthsText = sections[2] || '';
+        const weaknessesText = sections[3] || '';
+        const suggestionsText = sections[4] || '';
+        
+        // Parse explanations
+        const explanationLines = explanationsText.split('\n').filter(line => line.trim().startsWith('-'));
+        let expIndex = 0;
+        questions.forEach((q, i) => {
+          if (!results[i].correct && expIndex < explanationLines.length) {
+            explanations[i] = explanationLines[expIndex].replace(/^-\s*/, '').trim();
+            expIndex++;
+          }
+        });
+        
+        // Combine strengths, weaknesses, and suggestions into summary
+        summary = `Strengths:\n${strengthsText.trim()}\n\nWeaknesses:\n${weaknessesText.trim()}\n\nSuggestions:\n${suggestionsText.trim()}`;
+        feedback = summary;
+      } else {
+        // Fallback: use response as feedback
+        feedback = response;
+        summary = response;
+      }
+    } catch (error) {
+      console.error('Error generating combined response:', error);
+      feedback = '反馈生成失败';
+      summary = '反馈生成失败';
+    }
 
     // Update learning progress based on quiz score
     console.log('Checking for authorization header...');
