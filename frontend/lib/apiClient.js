@@ -10,6 +10,11 @@ const BACKEND_URL_KEY = 'backend_url';
 
 // Get the preferred backend URL
 function getBackendUrl() {
+  // In production, always use the deployed backend URL
+  if (process.env.NODE_ENV === 'production') {
+    return DEPLOYED_BACKEND_URL;
+  }
+  
   const storedUrl = localStorage.getItem(BACKEND_URL_KEY);
   if (storedUrl) {
     return storedUrl;
