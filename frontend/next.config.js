@@ -17,7 +17,18 @@ const nextConfig = {
         },
       ];
     }
-    return [];
+    // In development, allow localhost connections
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' http://localhost:3001 https://studysystem-3.onrender.com;",
+          },
+        ],
+      },
+    ];
   },
   async rewrites() {
     return [
