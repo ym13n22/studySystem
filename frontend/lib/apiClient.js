@@ -71,8 +71,8 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     
-    // If the error is a network error and we haven't retried yet
-    if (!error.response && !originalRequest._retry) {
+    // Only allow localhost fallback in development environment
+    if (process.env.NODE_ENV !== 'production' && !error.response && !originalRequest._retry) {
       originalRequest._retry = true;
       
       // Try falling back to localhost
