@@ -3,6 +3,8 @@ const nextConfig = {
   reactStrictMode: true,
   productionBrowserSourceMaps: false,
   async headers() {
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://studysystem-3.onrender.com';
+    
     // Only apply CSP in production
     if (process.env.NODE_ENV === 'production') {
       return [
@@ -11,7 +13,7 @@ const nextConfig = {
           headers: [
             {
               key: 'Content-Security-Policy',
-              value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://studysystem-3.onrender.com;",
+              value: `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' ${backendUrl};`,
             },
           ],
         },
@@ -24,7 +26,7 @@ const nextConfig = {
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' http://localhost:3001 https://studysystem-3.onrender.com;",
+            value: `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' http://localhost:3001 ${backendUrl};`,
           },
         ],
       },
