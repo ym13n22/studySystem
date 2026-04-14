@@ -4,7 +4,7 @@
 ![Node.js](https://img.shields.io/badge/node.js-18+-green.svg)
 ![Next.js](https://img.shields.io/badge/next.js-14-black.svg)
 
-**生产环境链接**: https://ai-study-system.vercel.app/
+**生产环境链接**: https://study-system-aiai.vercel.app/
 
 一个智能学习系统，基于 AI 生成个性化学习计划、测验和闪卡，帮助用户高效掌握知识。
 
@@ -128,6 +128,7 @@ npm install
 ```env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_BACKEND_URL=your_backend_url
 ```
 
 ### 运行应用
