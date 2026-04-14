@@ -93,9 +93,9 @@ async function generateWithFallback(prompt, modelName = 'gemini-2.5-flash') {
     const response = await result.response;
     return response.text();
   } catch (error) {
-    // Check if it's a rate limit error (429)
-    if (error.status === 429 || (error.message && error.message.includes('quota'))) {
-      console.log('Gemini API rate limited, falling back to Groq...');
+    // Check if it's a rate limit error (429) or service unavailable (503)
+    if (error.status === 429 || error.status === 503 || (error.message && (error.message.includes('quota') || error.message.includes('Service Unavailable')))) {
+      console.log('Gemini API rate limited or unavailable, falling back to Groq...');
       
       if (!groq) {
         throw new Error('Groq API key not configured');
