@@ -350,7 +350,7 @@ MIT License
 
 - Node.js 18+
 - 远程后端服务器已部署并运行
-- 后端 API URL（例如：https://studysystem-3.onrender.com）
+- 后端 API URL（例如：https://studysystem-3.onrender.com ）
 
 #### 配置步骤
 
