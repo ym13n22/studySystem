@@ -171,6 +171,20 @@ ollama pull llama3.2
 # 启动 Ollama 服务
 ollama serve
 ```
+```bash
+# 创建app
+双击项目根目录下的 `build-desktop.bat` 文件，会自动执行以下步骤：
+ 
+1. **构建 Next.js 前端** - 运行 `npm run build:static` 生成静态文件到 `frontend/out/`
+2. **安装 Electron 依赖** - 在 `electron/` 目录安装所需依赖
+3. **构建 Electron 应用** - 生成 Windows 安装包到 `dist/` 目录
+ 
+**最终生成的文件：**
+- `dist/AI Education System Setup 1.0.0.exe` - 安装版（需要安装）
+- `dist/AI Education System 1.0.0.exe` - 便携版（直接运行）
+ 
+整个过程需要几分钟时间。构建完成后，可以直接双击生成的 `.exe` 文件安装或运行桌面应用。
+```
 
 ## 📖 使用指南
 
