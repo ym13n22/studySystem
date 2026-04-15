@@ -317,3 +317,158 @@ MIT License
 
 如有问题或建议，请通过以下方式联系：
 - 提交 GitHub Issue
+
+## 🖥️ 桌面应用
+
+本项目支持构建为可下载安装的桌面应用程序（Windows/Mac/Linux），同时保持 web 端不变。
+
+### 功能特性
+
+- **完全复用前端代码**：无需修改 Next.js 前端代码
+- **连接远程服务器**：桌面应用连接到现有的后端 API 服务器
+- **跨平台支持**：支持 Windows、macOS、Linux
+- **离线安装**：一次安装，永久使用（需要网络连接后端服务）
+
+### 快速开始
+
+#### 前置要求
+
+- Node.js 18+
+- 远程后端服务器已部署并运行
+- 后端 API URL（例如：https://studysystem-3.onrender.com）
+
+#### 配置步骤
+
+1. **配置前端环境变量**
+
+在 `frontend/.env.local` 中设置远程后端 URL：
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_BACKEND_URL=https://your-backend-server.com
+```
+
+2. **安装 Electron 依赖**
+
+```bash
+cd electron
+npm install
+```
+
+#### 开发模式运行
+
+在开发模式下，Electron 会连接到本地 Next.js 开发服务器：
+
+```bash
+# 确保前端开发服务器正在运行
+cd frontend
+npm run dev
+
+# 在另一个终端启动 Electron
+cd electron
+npm start
+```
+
+或者使用 Windows 快捷脚本：
+
+```bash
+# 先启动前端开发服务器
+start-frontend.bat
+
+# 然后启动 Electron 开发模式
+start-desktop.bat
+```
+
+#### 构建桌面应用
+
+**Windows 快捷方式：**
+
+```bash
+# 双击运行构建脚本
+build-desktop.bat
+```
+
+**手动构建：**
+
+```bash
+# 1. 构建前端为静态文件
+cd frontend
+npm run build:static
+
+# 2. 安装 Electron 依赖（如果还没有安装）
+cd ../electron
+npm install
+
+# 3. 构建桌面应用
+npm run build:win        # Windows
+npm run build:mac        # macOS
+npm run build:linux      # Linux
+```
+
+构建完成后，安装包会输出到 `dist/` 目录：
+
+- **Windows**: `dist/AI Education System Setup.exe` 或 `dist/AI Education System.exe` (便携版)
+- **macOS**: `dist/AI Education System.dmg`
+- **Linux**: `dist/AI Education System.AppImage` 或 `dist/ai-education-desktop_1.0.0_amd64.deb`
+
+### 项目结构
+
+```
+StudySystem/
+├── electron/              # Electron 桌面应用配置
+│   ├── main.js           # Electron 主进程
+│   ├── preload.js        # 预加载脚本
+│   ├── package.json      # Electron 依赖和构建配置
+│   └── assets/           # 应用图标（需要添加）
+├── frontend/             # Next.js 前端（保持不变）
+├── backend/              # 后端 API（远程服务器）
+├── build-desktop.bat     # Windows 构建脚本
+└── start-desktop.bat     # Windows 开发启动脚本
+```
+
+### 配置说明
+
+#### Electron 主进程 (electron/main.js)
+
+- 开发模式：加载 `http://localhost:3000`（Next.js 开发服务器）
+- 生产模式：加载构建的静态文件 `frontend/out/index.html`
+- 安全配置：禁用 node integration，启用 context isolation
+
+#### Next.js 配置 (frontend/next.config.js)
+
+- 启用静态导出：`output: 'export'`
+- 禁用图片优化：`images: { unoptimized: true }`
+- 生产环境禁用 API 重写（直接连接远程后端）
+
+#### Electron Builder 配置 (electron/package.json)
+
+- Windows: 生成 NSIS 安装包和便携版 EXE
+- macOS: 生成 DMG 和 ZIP
+- Linux: 生成 AppImage 和 DEB 包
+
+### 注意事项
+
+1. **后端服务器必须在线**：桌面应用需要网络连接到远程后端 API
+2. **CORS 配置**：确保后端允许桌面应用的域名访问
+3. **环境变量**：构建时会打包前端的环境变量，确保 `NEXT_PUBLIC_BACKEND_URL` 设置正确
+4. **图标**：需要在 `electron/assets/` 目录添加应用图标（icon.png, icon.ico, icon.icns）
+
+### 故障排除
+
+**构建失败：Next.js 构建错误**
+- 检查前端是否有语法错误
+- 确保所有依赖已安装：`cd frontend && npm install`
+
+**Electron 启动失败**
+- 检查 Node.js 版本（需要 18+）
+- 确保 Electron 依赖已安装：`cd electron && npm install`
+
+**桌面应用无法连接后端**
+- 检查 `NEXT_PUBLIC_BACKEND_URL` 是否正确
+- 确认后端服务器正在运行
+- 检查网络连接和 CORS 配置
+
+**打包文件过大**
+- Electron 应用通常较大（100-200MB），这是正常的
+- 可以考虑使用 `electron-builder` 的压缩选项减小体积
